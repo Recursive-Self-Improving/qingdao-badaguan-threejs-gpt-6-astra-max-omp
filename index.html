@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4ee" />
+    <meta
+      name="description"
+      content="在红瓦、绿树与海风之间，自由漫游青岛八大关。一个以真实地方风貌为灵感的 Three.js 互动海滨景观。"
+    />
+    <title>八大关 · 在树影与海风之间</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main id="app">
+      <div id="scene" aria-label="青岛八大关三维互动景观"></div>
+      <div class="scene-wash" aria-hidden="true"></div>
+      <header class="site-header">
+        <a class="brand" href="#" id="home-link" aria-label="返回八大关全景">
+          <svg
+            class="brand-mark"
+            viewBox="0 0 44 46"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M9 29V16L18 8l8 8v17M18 8v25M4 33h32M26 33V22l7-6 7 6v10M8 23h6m-6 5h6m7-8h5m7 4h4"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M4 38c6-5 11 5 17 0s11 5 18 0M4 43c6-5 11 5 17 0s11 5 18 0"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <circle cx="35" cy="8" r="3" fill="#C48152" />
+          </svg>
+          <div class="brand-type">
+            <strong>八大关<span class="brand-dot">.</span></strong
+            ><span>BADAGUAN EXPLORER</span>
+          </div>
+        </a>
+        <nav class="main-nav" aria-label="主要导航">
+          <button class="nav-link active" id="nav-roam">
+            自由漫游<span class="nav-dot"></span>
+          </button>
+          <button class="nav-link" id="nav-landmarks">
+            地标探索<span class="nav-dot"></span>
+          </button>
+          <button class="nav-link" id="nav-about">
+            关于八大关<span class="nav-dot"></span>
+          </button>
+        </nav>
+        <div class="header-actions">
+          <span class="live-label"><span></span>实景灵感 · 3D 重现</span>
+          <div class="header-divider"></div>
+          <button
+            class="icon-button"
+            id="sound-button"
+            aria-label="开启海浪环境音"
+            aria-pressed="false"
+            title="开启海浪环境音"
+          >
+            <i data-lucide="volume-x"></i>
+          </button>
+          <button
+            class="icon-button"
+            id="settings-button"
+            aria-label="场景设置"
+            aria-expanded="false"
+            title="场景设置"
+          >
+            <i data-lucide="sliders-horizontal"></i>
+          </button>
+        </div>
+      </header>
+
+      <section class="intro" id="intro">
+        <div class="eyebrow">
+          <span class="small-line"></span>山 东 · 青 岛<span class="eyebrow-en"
+            >QINGDAO, CHINA</span
+          >
+        </div>
+        <h1>
+          在树影与<br />海风<span class="title-space">之间</span
+          ><span class="title-period">。</span>
+        </h1>
+        <p class="intro-description">
+          一条关路，一幢老房，一片蔚蓝。<br />走进八大关，让时间慢下来。
+        </p>
+        <div class="intro-actions">
+          <button class="primary-button" id="start-button">
+            开始漫游<i data-lucide="arrow-up-right"></i></button
+          ><button class="text-button" id="discover-button">
+            <span class="circle-icon"><i data-lucide="compass"></i></span
+            >发现这里
+          </button>
+        </div>
+        <div class="intro-note"><span></span>无需远行，此刻置身山海</div>
+      </section>
+
+      <section class="weather-panel glass" aria-label="氛围与时间">
+        <div class="weather-top">
+          <span class="weather-icon" id="weather-icon"
+            ><i data-lucide="sun"></i
+          ></span>
+          <div>
+            <span class="weather-title" id="weather-title">晴朗午后</span
+            ><span class="weather-description" id="weather-description"
+              >微风拂面，光影正好</span
+            >
+          </div>
+          <span class="scene-time" id="scene-time">16:30</span>
+        </div>
+        <div class="mood-options" role="group" aria-label="切换场景氛围">
+          <button class="mood active" data-mood="afternoon" aria-pressed="true">
+            <i data-lucide="sun"></i>午后</button
+          ><button class="mood" data-mood="sunset" aria-pressed="false">
+            <i data-lucide="sunset"></i>日落</button
+          ><button class="mood" data-mood="mist" aria-pressed="false">
+            <i data-lucide="cloud-fog"></i>薄雾
+          </button>
+        </div>
+      </section>
+
+      <div id="landmark-labels" aria-label="场景中的地标"></div>
+      <div class="scene-tools" aria-label="景观工具">
+        <button
+          class="tool-button"
+          id="reset-button"
+          aria-label="回到全景"
+          title="回到全景"
+        >
+          <i data-lucide="rotate-ccw"></i>
+        </button>
+        <button
+          class="tool-button"
+          id="photo-button"
+          aria-label="保存风景照片"
+          title="保存风景照片"
+        >
+          <i data-lucide="camera"></i>
+        </button>
+        <button
+          class="tool-button"
+          id="fullscreen-button"
+          aria-label="全屏欣赏"
+          title="全屏欣赏"
+        >
+          <i data-lucide="maximize"></i>
+        </button>
+        <span class="tools-divider"></span>
+        <button
+          class="tool-button"
+          id="help-button"
+          aria-label="查看漫游操作"
+          title="漫游操作"
+        >
+          <i data-lucide="circle-help"></i>
+        </button>
+      </div>
+
+      <article class="place-card glass" id="place-card">
+        <div class="place-image-wrap">
+          <img
+            class="place-image"
+            src="/huashi.webp"
+            alt="八大关花石楼的真实建筑风貌"
+          /><span class="image-label"
+            ><i data-lucide="map-pin"></i
+            ><span id="place-category">历史建筑</span></span
+          ><span class="image-counter"
+            ><span id="place-index">01</span> / 04</span
+          >
+        </div>
+        <div class="place-body">
+          <div class="place-heading">
+            <div>
+              <h2 id="place-name">花石楼</h2>
+              <span id="place-english">HUASHI VILLA</span>
+            </div>
+            <button
+              class="place-next"
+              id="place-next"
+              aria-label="探索下一个地标"
+            >
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </div>
+          <p id="place-subtitle">一座石楼，半城山海</p>
+          <div class="place-footer">
+            <button id="place-detail">
+              走近看看<i data-lucide="arrow-up-right"></i></button
+            ><span class="place-dots" aria-hidden="true"
+              ><b class="active"></b><b></b><b></b><b></b
+            ></span>
+          </div>
+        </div>
+      </article>
+
+      <div class="roam-status glass" id="roam-status" hidden>
+        <span class="status-dot"></span
+        ><span id="roam-status-text">自由漫游中</span
+        ><button id="exit-roam">退出<i data-lucide="x"></i></button>
+      </div>
+      <div class="view-controls glass">
+        <button class="view-mode active" id="free-view" aria-pressed="true">
+          <i data-lucide="footprints"></i>自由探索</button
+        ><button class="view-mode" id="tour-button" aria-pressed="false">
+          <i data-lucide="play"></i><span>自动游览</span></button
+        ><span class="view-divider"></span
+        ><button
+          class="view-icon"
+          id="toggle-labels"
+          aria-label="隐藏地标标签"
+          aria-pressed="true"
+          title="显示 / 隐藏地标"
+        >
+          <i data-lucide="map-pin"></i>
+        </button>
+      </div>
+
+      <aside class="mini-map glass" id="mini-map" aria-label="八大关漫游示意图">
+        <div class="map-heading">
+          <span><i data-lucide="map"></i>漫游地图</span
+          ><button
+            id="expand-map"
+            aria-label="展开漫游地图"
+            aria-expanded="false"
+          >
+            <i data-lucide="expand"></i>
+          </button>
+        </div>
+        <div class="map-content">
+          <svg
+            viewBox="0 0 256 154"
+            id="map-svg"
+            role="img"
+            aria-label="点击地图地标快速抵达，地图为艺术化示意"
+          >
+            <defs>
+              <pattern
+                id="map-trees"
+                width="16"
+                height="17"
+                patternUnits="userSpaceOnUse"
+              >
+                <circle cx="4" cy="4" r="2.1" fill="#c7ceb5" opacity=".6" />
+                <circle cx="13" cy="12" r="1.5" fill="#b8c6ac" opacity=".55" />
+              </pattern>
+            </defs>
+            <rect width="256" height="154" fill="#e8eadb" />
+            <rect width="256" height="154" fill="url(#map-trees)" />
+            <path
+              d="M0 100Q50 79 87 111T170 120Q190 106 218 100T260 117V160H0Z"
+              fill="#d4e4e3"
+            />
+            <path
+              d="M0 96Q50 74 87 106T168 115Q191 99 218 96T260 112"
+              fill="none"
+              stroke="#f8f2df"
+              stroke-width="8"
+            />
+            <g fill="none" stroke="#f8f7ef" stroke-width="8">
+              <path d="M-10 82Q45 58 92 85T167 89Q195 76 269 85" />
+              <path d="M19-10L50 78M88-5L108 89M164-10L153 85M227-5L205 79" />
+              <path d="M-6 28L262 26M-7 53L263 48" />
+            </g>
+            <g fill="none" stroke="#d5d6c6" stroke-width=".7">
+              <path d="M-10 82Q45 58 92 85T167 89Q195 76 269 85" />
+              <path d="M19-10L50 78M88-5L108 89M164-10L153 85M227-5L205 79" />
+            </g>
+            <g fill="#c58d6d" stroke="#b88060" stroke-width=".6">
+              <path
+                d="M60 35h12v10H60zM120 33h14v10h-14zM177 55h13v11h-13zM32 36h9v10h-9zM58 8h13v12H58zM180 7h13v11h-13zM115 6h13v13h-13zM225 54h12v12h-12zM9 54h12v10H9z"
+              />
+            </g>
+            <g
+              class="map-spot"
+              data-place="0"
+              tabindex="0"
+              role="button"
+              aria-label="前往花石楼"
+            >
+              <circle cx="159" cy="101" r="10" fill="#fffcf5" />
+              <circle cx="159" cy="101" r="5" fill="#b77d54" />
+              <text x="173" y="105">花石楼</text>
+            </g>
+            <g
+              class="map-spot"
+              data-place="1"
+              tabindex="0"
+              role="button"
+              aria-label="前往公主楼"
+            >
+              <circle cx="71" cy="56" r="7" fill="#fffcf5" />
+              <circle cx="71" cy="56" r="3.5" fill="#7a8d71" />
+              <text x="80" y="61">公主楼</text>
+            </g>
+            <g
+              class="map-spot"
+              data-place="2"
+              tabindex="0"
+              role="button"
+              aria-label="前往林荫关路"
+            >
+              <circle cx="105" cy="80" r="6" fill="#fffcf5" />
+              <circle cx="105" cy="80" r="3" fill="#7a8d71" />
+            </g>
+            <g
+              class="map-spot"
+              data-place="3"
+              tabindex="0"
+              role="button"
+              aria-label="前往第二海水浴场"
+            >
+              <text x="46" y="134" class="sea-map-label">第二海水浴场</text>
+            </g>
+            <g id="map-player" transform="translate(186 121)">
+              <path
+                d="M0-12L-8 8 0 5 8 8Z"
+                fill="#406c68"
+                stroke="#fff"
+                stroke-width="2"
+              />
+              <circle r="14" fill="none" stroke="#406c68" opacity=".16" />
+            </g>
+            <text x="233" y="19" class="map-north">N</text>
+            <path
+              d="M236 24v12m-3-8 3-4 3 4"
+              fill="none"
+              stroke="#56635e"
+              stroke-width="1"
+            />
+          </svg>
+        </div>
+        <div class="map-footer">
+          <span><span class="map-position-dot"></span>你在这里</span
+          ><span>点击地标，随心出发</span>
+        </div>
+      </aside>
+
+      <footer class="bottom-bar">
+        <div class="location-coordinate">
+          <i data-lucide="map-pin"></i
+          ><span>36°03′ N&nbsp;&nbsp; 120°21′ E</span
+          ><span class="coordinate-divider">/</span><span>黄海之滨</span>
+        </div>
+        <div class="keyboard-guide">
+          <span
+            ><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd
+            ><span>移动</span></span
+          ><span><i data-lucide="mouse"></i>拖动环顾</span
+          ><span><i data-lucide="move-vertical"></i>滚轮缩放</span
+          ><button id="footer-help" aria-label="更多操作说明">
+            <i data-lucide="circle-help"></i>
+          </button>
+        </div>
+        <span class="made-note"
+          >留一点时间，给风景<span class="tiny-star">✳</span></span
+        >
+      </footer>
+
+      <section
+        class="settings-panel glass popover"
+        id="settings-panel"
+        hidden
+        aria-label="场景设置"
+      >
+        <div class="panel-title">
+          <h2>让风景适合你</h2>
+          <button
+            class="icon-button"
+            data-close="settings-panel"
+            aria-label="关闭设置"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <label class="setting-row" for="quality-select"
+          ><span>画面质量</span
+          ><select id="quality-select">
+            <option value="standard">流畅</option>
+            <option value="high" selected>精细</option>
+          </select></label
+        ><label class="setting-row" for="speed-range"
+          ><span>漫游速度</span
+          ><input
+            type="range"
+            id="speed-range"
+            min="4"
+            max="24"
+            value="10"
+            aria-label="漫游速度" /></label
+        ><label class="setting-row" for="sound-range"
+          ><span>海浪音量</span
+          ><input
+            type="range"
+            id="sound-range"
+            min="0"
+            max="100"
+            value="35"
+            aria-label="海浪音量"
+        /></label>
+        <p>声音默认关闭，点击右上角开启。</p>
+      </section>
+
+      <aside
+        class="explore-panel glass"
+        id="explore-panel"
+        hidden
+        aria-label="地标探索"
+      >
+        <div class="panel-title">
+          <div>
+            <span class="panel-eyebrow">PLACES TO SLOW DOWN</span>
+            <h2>循着风，发现八大关</h2>
+          </div>
+          <button
+            class="icon-button"
+            data-close="explore-panel"
+            aria-label="关闭地标探索"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <p class="explore-intro">不必赶路，喜欢的风景就在下一站。</p>
+        <div id="explore-list"></div>
+        <div class="explore-detail" id="explore-detail"></div>
+        <p class="interpretation-note">
+          <i data-lucide="info"></i>基于真实风貌的艺术化重建，非实测地图。
+        </p>
+      </aside>
+
+      <dialog id="about-dialog" class="content-dialog">
+        <button class="dialog-close icon-button" aria-label="关闭关于八大关">
+          <i data-lucide="x"></i></button
+        ><span class="panel-eyebrow">A PLACE BETWEEN THE TREES & THE SEA</span>
+        <h2>红瓦绿树，<br />碧海蓝天。</h2>
+        <p class="dialog-lead">这里是青岛，八大关。</p>
+        <p>
+          以中国著名关隘命名的街巷，连接着风格各异的近代别墅。不同树种为道路写下四季，转过街角，便是黄海。
+        </p>
+        <div class="about-facts">
+          <div>
+            <i data-lucide="landmark"></i><strong>万国建筑</strong
+            ><span>石墙与红瓦里的岁月</span>
+          </div>
+          <div>
+            <i data-lucide="trees"></i><strong>一路一景</strong
+            ><span>藏在林荫中的花园街区</span>
+          </div>
+          <div>
+            <i data-lucide="waves"></i><strong>向海而生</strong
+            ><span>礁石、沙滩与悠长海岸</span>
+          </div>
+        </div>
+        <div class="about-note">
+          <strong>关于这次虚拟旅行</strong>
+          <p>
+            场景以花石楼的石砌圆塔、公主楼的绿色墙面、红瓦别墅与林荫海岸为依据进行艺术化建模。建筑位置、比例及道路经过简化，不是实测复原；时间与天气为可切换的场景氛围，并非实时气象。
+          </p>
+          <a
+            href="https://en.wikipedia.org/wiki/Badaguan"
+            target="_blank"
+            rel="noopener noreferrer"
+            >了解真实的八大关<i data-lucide="arrow-up-right"></i></a
+          ><span class="photo-credit"
+            >花石楼实景照片：Wikimedia Commons · CC BY-SA<br /><a
+              href="https://commons.wikimedia.org/wiki/File:%E9%9D%92%E5%B2%9B%E5%85%AB%E5%A4%A7%E5%85%B3%E8%8A%B1%E7%9F%B3%E6%A5%BC.jpg"
+              target="_blank"
+              rel="noopener noreferrer"
+              >查看原图与作者署名</a
+            ></span
+          >
+        </div>
+      </dialog>
+
+      <dialog id="help-dialog" class="content-dialog help-dialog">
+        <button class="dialog-close icon-button" aria-label="关闭操作说明">
+          <i data-lucide="x"></i></button
+        ><span class="panel-eyebrow">MAKE YOURSELF AT HOME</span>
+        <h2>你的步调，<br />你的八大关。</h2>
+        <p class="dialog-lead">鼠标、键盘，或指尖，都能带你出发。</p>
+        <div class="help-grid">
+          <div>
+            <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span
+            ><strong>前后左右移动</strong>
+          </div>
+          <div>
+            <span><i data-lucide="mouse-pointer-2"></i>拖动鼠标</span
+            ><strong>自由转动视角</strong>
+          </div>
+          <div>
+            <span><kbd>Q</kbd><kbd>E</kbd></span
+            ><strong>下降 / 上升</strong>
+          </div>
+          <div>
+            <span><kbd>Shift</kbd></span
+            ><strong>按住加速</strong>
+          </div>
+          <div>
+            <span><i data-lucide="mouse"></i>滚动滚轮</span
+            ><strong>拉近 / 拉远</strong>
+          </div>
+          <div>
+            <span><kbd>Esc</kbd></span
+            ><strong>退出漫游 / 关闭面板</strong>
+          </div>
+        </div>
+        <p class="help-touch">
+          <i data-lucide="hand"></i
+          >触屏：单指拖动环顾；全景下双指缩放与平移。进入漫游后，使用左下方向键移动。
+        </p>
+        <button class="primary-button" id="help-start">
+          准备好了，出发<i data-lucide="arrow-up-right"></i>
+        </button>
+      </dialog>
+
+      <div class="touch-controls" id="touch-controls" aria-label="触屏移动控制">
+        <button data-key="KeyW" aria-label="向前移动">
+          <i data-lucide="chevron-up"></i>
+        </button>
+        <div>
+          <button data-key="KeyA" aria-label="向左移动">
+            <i data-lucide="chevron-left"></i></button
+          ><button data-key="KeyS" aria-label="向后移动">
+            <i data-lucide="chevron-down"></i></button
+          ><button data-key="KeyD" aria-label="向右移动">
+            <i data-lucide="chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="loading-screen" id="loading-screen">
+        <div class="loading-emblem">八大关<span>BADAGUAN</span></div>
+        <div class="loading-line"><span></span></div>
+        <p>让海风，先到一步。</p>
+      </div>
+      <div class="render-error" id="render-error" hidden>
+        <i data-lucide="monitor"></i>
+        <h2>这段风景需要 WebGL</h2>
+        <p>请使用支持 WebGL 的现代浏览器，并开启硬件加速后重试。</p>
+        <button class="primary-button" id="retry-button">
+          重新加载<i data-lucide="rotate-cw"></i>
+        </button>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
